@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"sort"
+	"github.com/sourcedelica/algorithms-go/util"
 )
 
 type Job struct {
@@ -54,19 +54,16 @@ func main() {
 }
 
 func ReadJobs(filename string) []Job {
-	f, err := os.Open(filename)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening file: %v\n", err)
-	    os.Exit(1)
-	}
-
+	f := util.OpenFile(filename)
 	scanner := bufio.NewScanner(bufio.NewReader(f))
-	count := Atoi(ReadLine(scanner))
+	count := util.Atoi(util.ReadLine(scanner))
 	jobs := make([]Job, count)
 
 	for i := 0; i < count ; i++ {
-		jobParts := strings.Split(ReadLine(scanner), " ")
-		jobs[i] = Job{ Weight: Atoi(jobParts[0]), Length: Atoi(jobParts[1]) }
+		jobParts := strings.Split(util.ReadLine(scanner), " ")
+		weight := util.Atoi(jobParts[0])
+		length := util.Atoi(jobParts[1])
+		jobs[i] = Job{ Weight: weight, Length: length }
 	}
 
 	return jobs
@@ -85,21 +82,4 @@ func SumCompletionTimes(jobs []Job) int {
 		sum += job.Weight * completionTime
 	}
 	return sum
-}
-
-func ReadLine(scanner *bufio.Scanner) string {
-	scanner.Scan()
-	if err := scanner.Err(); err != nil {
-		panic(err)
-	} else {
-		return scanner.Text()
-	}
-}
-
-func Atoi(s string) int {
-	if i, err := strconv.Atoi(s); err != nil {
-		panic(err)
-	} else {
-		return i
-	}
 }
