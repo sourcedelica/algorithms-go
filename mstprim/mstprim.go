@@ -45,24 +45,21 @@ func MST(ewGraph graph.AdjacencyList) []graph.Edge {
     visited := make(map[int]bool, 2 * len(ewGraph.Nodes))
     mst := make([]graph.Edge, 0)
 
-    var start int
-    for key, _ := range ewGraph.Nodes { start = key; break }   // Get the first node
-    Visit(ewGraph, edgeHeap, visited, start)
+    Visit(ewGraph, edgeHeap, visited, ewGraph.First().Id)
 
     for edgeHeap.Len() > 0 {
         edge := heap.Pop(edgeHeap).(graph.Edge)
         u, v := edge.U, edge.V
+
         if visited[u] && visited[v] {
             continue
         }
         mst = append(mst, edge)
-        if !visited[u] {
-            Visit(ewGraph, edgeHeap, visited, u)
-        }
-        if !visited[v] {
-            Visit(ewGraph, edgeHeap, visited, v)
-        }
+
+        if !visited[u] { Visit(ewGraph, edgeHeap, visited, u) }
+        if !visited[v] { Visit(ewGraph, edgeHeap, visited, v) }
     }
+
     return mst
 }
 

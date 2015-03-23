@@ -11,6 +11,12 @@ type AdjacencyList struct {
     Nodes map[int]Node
 }
 
+func (a *AdjacencyList) First() Node {
+    var first Node
+    for _, v := range a.Nodes { first = v; break }
+    return first
+}
+
 type Node struct {
     Id int
     Edges []Edge
@@ -40,7 +46,6 @@ func (e Edge) Other(id int) int {
 func ReadEWGraph(filename string) AdjacencyList {
     f := util.OpenFile(filename)
    	defer f.Close()
-
    	scanner := bufio.NewScanner(bufio.NewReader(f))
 
     sizes := strings.Split(util.ReadLine(scanner), " ")
@@ -64,7 +69,7 @@ func ReadEWGraph(filename string) AdjacencyList {
 func AddEdge(nodes map[int]Node, id1 int, id2 int, weight float64) {
     v, ok := nodes[id1]
     if (!ok) {
-        v = Node{ Id: id1, Edges: nil }
+        v = Node{ Id: id1 }
     }
     v.Edges = append(v.Edges, Edge{ U: id1, V: id2, Weight: weight })
     nodes[id1] = v
