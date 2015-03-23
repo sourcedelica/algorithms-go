@@ -33,12 +33,20 @@ func main() {
     filename := os.Args[1]
     ewGraph := graph.ReadEWGraph(filename)
 
+    mst := MST(ewGraph)
+
+    fmt.Printf("%f\n", Sum(mst))
+}
+
+// Compute minimum spanning tree using Prim's algorithm
+// http://en.wikipedia.org/wiki/Prim%27s_algorithm
+func MST(ewGraph graph.AdjacencyList) []graph.Edge {
     edgeHeap := &EdgeHeap{}
     visited := make(map[int]bool, 2 * len(ewGraph.Nodes))
     mst := make([]graph.Edge, 0)
 
     var start int
-    for key, _ := range ewGraph.Nodes { start = key; break }
+    for key, _ := range ewGraph.Nodes { start = key; break }   // Get the first node
     Visit(ewGraph, edgeHeap, visited, start)
 
     for edgeHeap.Len() > 0 {
@@ -55,8 +63,7 @@ func main() {
             Visit(ewGraph, edgeHeap, visited, v)
         }
     }
-
-    fmt.Printf("%f\n", Sum(mst))
+    return mst
 }
 
 func Visit(graph graph.AdjacencyList, h *EdgeHeap, visited map[int]bool, id int) {

@@ -40,6 +40,7 @@ func (a ByDifference) Less(i, j int) bool {
 	return result
 }
 
+// Schedules jobs a number of different ways
 func main() {
 	if (len(os.Args) < 2) {
 		fmt.Fprintf(os.Stderr, "Usage: %s filename\n", os.Args[0])
