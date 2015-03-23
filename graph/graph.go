@@ -17,6 +17,15 @@ func (a *AdjacencyList) First() Node {
     return first
 }
 
+func (a *AdjacencyList) AddEdge(id1 int, id2 int, weight float64) {
+    v, ok := a.Nodes[id1]
+    if (!ok) {
+        v = Node{ Id: id1 }
+    }
+    v.Edges = append(v.Edges, Edge{ U: id1, V: id2, Weight: weight })
+    a.Nodes[id1] = v
+}
+
 type Node struct {
     Id int
     Edges []Edge
@@ -53,24 +62,16 @@ func ReadEWGraph(filename string) AdjacencyList {
     numEdges := util.Atoi(sizes[1])
 
     nodes := make(map[int]Node, 2 * numNodes)
+    ewGraph := AdjacencyList{ Nodes: nodes }
 
     for i := 0; i < numEdges; i++ {
         edgeParts := strings.Split(util.ReadLine(scanner), " ")
         node1 := util.Atoi(edgeParts[0])
         node2 := util.Atoi(edgeParts[1])
         weight := util.Atof(edgeParts[2])
-        AddEdge(nodes, node1, node2, weight)
-        AddEdge(nodes, node2, node1, weight)
+        ewGraph.AddEdge(node1, node2, weight)
+        ewGraph.AddEdge(node2, node1, weight)
     }
 
-    return AdjacencyList{ Nodes: nodes }
-}
-
-func AddEdge(nodes map[int]Node, id1 int, id2 int, weight float64) {
-    v, ok := nodes[id1]
-    if (!ok) {
-        v = Node{ Id: id1 }
-    }
-    v.Edges = append(v.Edges, Edge{ U: id1, V: id2, Weight: weight })
-    nodes[id1] = v
+    return ewGraph
 }
