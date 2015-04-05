@@ -18,9 +18,12 @@ func main() {
     uf := unionfind.Create(numIds)
 
     formClusters(bits, nodes, &uf)
-    fmt.Println(uf.Count)
+
+    fmt.Printf("Number of clusters: %d\n", uf.Count)
 }
 
+// Compute all combinations of values 'bits' long
+// with one or two bits set
 func xorValues(bits int) []int {
     xors := make([]int, 0)
     for i := 0; i < bits; i++ {
@@ -34,6 +37,7 @@ func xorValues(bits int) []int {
     return xors
 }
 
+// Return value with bit set at ith position
 func bitAt(i int) int {
     mask := 1
     for ; i > 0; i-- {
@@ -42,6 +46,7 @@ func bitAt(i int) int {
     return mask
 }
 
+// Form clusters of nodes where the # bits differ by at most 2
 func formClusters(bits int, nodes map[int]int, uf *unionfind.UnionFind) {
     masks := xorValues(bits)
     for node, id := range nodes {
@@ -76,5 +81,6 @@ func readNodes(filename string) (int, int, map[int]int) {
         }
     }
 
+    // id is now number of ids
     return id, bits, nodes
 }
