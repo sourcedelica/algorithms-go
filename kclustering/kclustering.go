@@ -21,7 +21,7 @@ func (a byDistance) Len() int           { return len(a) }
 func (a byDistance) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a byDistance) Less(i, j int) bool { return a[i].distance < a[j].distance }
 
-// Find maximum spacing for k-clustering
+// Find maximum spacing for single-link k-clustering
 func main() {
     if len(os.Args) < 3 {
         fmt.Fprintf(os.Stderr, "Usage: %s filename k\n", os.Args[0])
@@ -38,7 +38,9 @@ func main() {
 
     formClusters(k, edges, &uf)
 
-    fmt.Printf("Result for %d clusters: %d\n", k, findMinDistance(edges, uf))
+    maxSpacing := findMinDistance(edges, uf)
+
+    fmt.Printf("Result for %d clusters: %d\n", k, maxSpacing)
 }
 
 // Form clusters of edges by closest distance
