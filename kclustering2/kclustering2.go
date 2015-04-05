@@ -8,6 +8,8 @@ import (
     "github.com/sourcedelica/algorithms-go/unionfind"
 )
 
+// Using single-link clustering, find number of clusters
+// where Hamming distance is at most 2
 func main() {
     if len(os.Args) < 2 {
         fmt.Fprintf(os.Stderr, "Usage: %s filename\n", os.Args[0])
@@ -24,34 +26,35 @@ func main() {
 
 // Compute all combinations of values 'bits' long
 // with one or two bits set
-func xorValues(bits int) []int {
-    xors := make([]int, 0)
+func bitMasks(bits int) []int {
+    masks := make([]int, 0)
     for i := 0; i < bits; i++ {
-        xors = append(xors, bitAt(i))
+        masks = append(masks, bitAt(i))
     }
     for i := 0; i < bits; i++ {
         for j := i+1; j < bits; j++ {
-            xors = append(xors, bitAt(i) | bitAt(j))
+            masks = append(masks, bitAt(i) | bitAt(j))
         }
     }
-    return xors
+    return masks
 }
 
 // Return value with bit set at ith position
 func bitAt(i int) int {
-    mask := 1
-    for ; i > 0; i-- {
-        mask = mask << 1
-    }
-    return mask
+    return 1 << uint(i)
 }
 
 // Form clusters of nodes where the # bits differ by at most 2
 func formClusters(bits int, nodes map[int]int, uf *unionfind.UnionFind) {
-    masks := xorValues(bits)
+    masks := bitMasks(bits)
+
+    // For each node
     for node, id := range nodes {
+        // For each bit mask
         for _, mask := range masks {
+            // Compute possible mate using XOR
             mate := node ^ mask
+            // If mate exists, merge with it
             mateId, ok := nodes[mate]
             if (ok) {
                 uf.Union(id, mateId)
@@ -60,6 +63,12 @@ func formClusters(bits int, nodes map[int]int, uf *unionfind.UnionFind) {
     }
 }
 
+// Read file in format
+// #nodes #bits
+// b1 b2 ... bn [for node 1]
+// b2 b2 ... bn [for node 2]
+// ...
+// Where bi is one bit of the node value
 func readNodes(filename string) (int, int, map[int]int) {
     f := util.OpenFile(filename)
     defer f.Close()

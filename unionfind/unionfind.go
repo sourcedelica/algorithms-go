@@ -43,5 +43,6 @@ func (uf *UnionFind) Union(p int, q int) {
         uf.id[qId] = pId
         uf.size[pId] += uf.size[qId]
     }
+
     uf.Count--
 }
