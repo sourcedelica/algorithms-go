@@ -29,12 +29,11 @@ func main() {
     filename := os.Args[1]
     k := util.Atoi(os.Args[2])
 
-    edges := readEdges(filename)
+    n, edges := readEdges(filename)
 
     sort.Sort(ByDistance(edges))
 
-    numEdges := len(edges)
-    uf := unionfind.Create(numEdges)
+    uf := unionfind.Create(n)
 
     formClusters(k, edges, uf)
 
@@ -54,16 +53,16 @@ func formClusters(k int, edges []Edge, uf unionfind.UnionFind) {
 
 func findMinDistance(edges []Edge, uf unionfind.UnionFind) int {
     numEdges := len(edges)
-    for i := numEdges-1; i >= 0; i-- {
+    for i := 0; i < numEdges; i++ {
         edge := edges[i]
         if !uf.Connected(edge.U, edge.V) {
             return edge.Distance
         }
     }
-    return 0
+    return -1
 }
 
-func readEdges(filename string) []Edge {
+func readEdges(filename string) (int, []Edge) {
     f := util.OpenFile(filename)
    	defer f.Close()
    	scanner := bufio.NewScanner(bufio.NewReader(f))
@@ -71,13 +70,13 @@ func readEdges(filename string) []Edge {
     n := util.Atoi(util.ReadLine(scanner))
     edges := make([]Edge, 0, (n * n) / 2)
 
-    for i := 0; i < n; i++ {
-        parts := strings.Split(util.ReadLine(scanner), " ")
+    for scanner.Scan() {
+        parts := strings.Split(scanner.Text(), " ")
         p1 := util.Atoi(parts[0])
         p2 := util.Atoi(parts[1])
         distance := util.Atoi(parts[2])
-        edges = append(edges, Edge{U: p1, V: p2, Distance: distance})
+        edges = append(edges, Edge{U: p1 - 1, V: p2 - 1, Distance: distance})
     }
 
-    return edges
+    return n, edges
 }

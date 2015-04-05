@@ -15,6 +15,7 @@ func OpenFile(filename string) *os.File {
 	return f
 }
 
+// Use only when you know how many lines of text you are going to need
 func ReadLine(scanner *bufio.Scanner) string {
 	scanner.Scan()
 	if err := scanner.Err(); err != nil {
@@ -37,5 +38,13 @@ func Atof(s string) float64 {
 		panic(err)
 	} else {
 		return f
+	}
+}
+
+func Btoi(s string) int64 {
+	if i, err := strconv.ParseInt(s, 2, 0); err != nil {
+		panic(err)
+	} else {
+		return i
 	}
 }

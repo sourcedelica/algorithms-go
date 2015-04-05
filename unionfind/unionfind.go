@@ -7,6 +7,7 @@ type UnionFind struct {
     Count int    // # of components
 }
 
+// Ids are 0 to n-1
 func Create(n int) UnionFind {
     var id = make([]int, n)
     for i, _ := range id { id[i] = i }
@@ -22,6 +23,7 @@ func (uf *UnionFind) Find(p int) int {
     }
     return p
 }
+
 func (uf *UnionFind) Connected(p int, q int) bool {
     return uf.Find(p) == uf.Find(q)
 }
