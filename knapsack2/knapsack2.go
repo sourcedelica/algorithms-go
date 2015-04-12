@@ -30,13 +30,14 @@ func find(i int, x int, sack *knapsack.Knapsack, memo map[string]int) int {
 
     w := sack.Weight(i)
     v := sack.Value(i)
-
     var aix int
+
     if w > x {
         aix = find(i - 1, x, sack, memo)
     } else {
         aix = util.Max(find(i - 1, x, sack, memo), find(i - 1, x - w, sack, memo) + v)
     }
+
     memo[k] = aix
     return aix
 }
