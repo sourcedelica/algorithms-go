@@ -9,7 +9,6 @@ import (
 // Solve Knapsack problem using recursion and memoization
 func main() {
     sack := knapsack.Load()
-
     n := sack.Size()
     W := sack.W()
     memo := make(map[string]int)

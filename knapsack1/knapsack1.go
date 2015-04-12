@@ -9,7 +9,6 @@ import (
 // Solve Knapsack problem using iteration
 func main() {
     sack := knapsack.Load()
-
     n := sack.Size()
     W := sack.W()
     A := make([][]int, n + 1)
@@ -17,15 +16,18 @@ func main() {
 
     for i := 1; i <= n; i++ {
         A[i] = make([]int, W + 1)
+
         for x := 0; x <= W; x++ {
             var aix int
             w := sack.Weight(i)
+
             if w > x {
                 aix = A[i - 1][x]
             } else {
                 v := sack.Value(i)
                 aix = util.Max(A[i - 1][x], A[i - 1][x - w] + v)
             }
+
             A[i][x] = aix
         }
     }
