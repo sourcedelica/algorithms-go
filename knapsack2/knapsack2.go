@@ -3,6 +3,7 @@ package main
 import (
     "github.com/sourcedelica/algorithms-go/knapsack"
     "fmt"
+    "github.com/sourcedelica/algorithms-go/util"
 )
 
 // Solve Knapsack problem using recursion and memoization
@@ -13,12 +14,12 @@ func main() {
     W := sack.W()
     memo := make(map[string]int)
 
-    optValue := solve(n, W, &sack, memo)
+    optimalValue := find(n, W, &sack, memo)
 
-    fmt.Printf("Value of sack: %d\n", optValue)
+    fmt.Printf("Value of sack: %d\n", optimalValue)
 }
 
-func solve(i int, x int, sack *knapsack.Knapsack, memo map[string]int) int {
+func find(i int, x int, sack *knapsack.Knapsack, memo map[string]int) int {
     if i == 0 {
         return 0
     }
@@ -33,9 +34,9 @@ func solve(i int, x int, sack *knapsack.Knapsack, memo map[string]int) int {
 
     var aix int
     if w > x {
-        aix = solve(i - 1, x, sack, memo)
+        aix = find(i - 1, x, sack, memo)
     } else {
-        aix = Max(solve(i - 1, x, sack, memo), solve(i - 1, x - w, sack, memo) + v)
+        aix = util.Max(find(i - 1, x, sack, memo), find(i - 1, x - w, sack, memo) + v)
     }
     memo[k] = aix
     return aix
@@ -43,12 +44,4 @@ func solve(i int, x int, sack *knapsack.Knapsack, memo map[string]int) int {
 
 func key(i int, x int) string {
     return fmt.Sprintf("%d,%d", i, x)
-}
-
-func Max(a int, b int) int {
-    if (a > b) {
-        return a
-    } else {
-        return b
-    }
 }

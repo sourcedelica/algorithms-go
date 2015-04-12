@@ -48,3 +48,11 @@ func Btoi(s string) int64 {
 		return i
 	}
 }
+
+func Max(a int, b int) int {
+	if (a > b) {
+		return a
+	} else {
+		return b
+	}
+}
