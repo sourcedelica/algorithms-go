@@ -1,4 +1,5 @@
 package main
+
 import (
     "os"
     "fmt"
@@ -7,9 +8,26 @@ import (
 )
 
 type ShortestPaths struct {
-    negativeCycle bool
-    paths []graph.Edge
-    edges [][]graph.Edge
+    negativeCycle bool  // true if a negative cycle was detected
+    paths []graph.Edge  // Shortest s->t paths with their lengths
+    edges [][]int       // edges[s][t] contains the "from" vertex of the edge to t along the shortest s->t path
+}
+
+// Reconstructs the from->to shortest path from the edges matrix
+func (sp *ShortestPaths) Path(from int, to int) []int {
+    var path []int
+
+    if sp.edges[from][to] == 0 {
+        return nil
+    }
+
+    path = append(path, from)
+    for from != to {
+        from = sp.edges[from][to]
+        path = append(path, from)
+    }
+
+    return path
 }
 
 func main() {
@@ -27,11 +45,10 @@ func main() {
         os.Exit(1)
     }
 
-    //printPaths(&sp)
-
     printShortestPath(&sp)
 }
 
+// Prints the shortest path found in the graph
 func printShortestPath(sp *ShortestPaths) {
     min := math.Inf(1)
     var from, to int
@@ -42,20 +59,29 @@ func printShortestPath(sp *ShortestPaths) {
             to = edge.To()
         }
     }
-
     fmt.Printf("Minimum path %d->%d, length=%f\n", from, to, min)
+
+    for _, i := range(sp.Path(from, to)) {
+        fmt.Printf("%d", i)
+        if i != to {
+            fmt.Printf("->")
+        }
+    }
+    fmt.Println()
 }
 
+// All-pairs shortest paths using Floyd-Warshall algorithm
+// http://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
 func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
     n := ewdGraph.Size()
 
     dists := make([][]float64, n + 1)
-    edges := make([][]graph.Edge, n + 1)
+    edges := make([][]int, n + 1)
 
     // Initialization
     for i := 1; i <= n; i++ {
         dists[i] = make([]float64, n + 1)
-        edges[i] = make([]graph.Edge, n + 1)
+        edges[i] = make([]int, n + 1)
         for j := 1; j <= n; j++ {
             dists[i][j] = math.Inf(1)
         }
@@ -64,7 +90,7 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
     for i := 1; i <= n; i++ {
         for _, edge := range(ewdGraph.Nodes[i].Edges) {
             dists[i][edge.To()] = edge.Weight
-            edges[i][edge.To()] = edge
+            edges[i][edge.To()] = edge.To()
         }
     }
 
@@ -75,7 +101,7 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
                 right := dists[i][k] + dists[k][j]
                 if (left > right) {
                     dists[i][j] = right
-                    edges[i][j] = edges[k][j]
+                    edges[i][j] = edges[i][k]
                 }
             }
             if dists[i][i] < 0 {
@@ -96,4 +122,3 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
 
     return ShortestPaths{paths: paths, edges: edges}
 }
-
