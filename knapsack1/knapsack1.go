@@ -6,17 +6,17 @@ import (
     "github.com/sourcedelica/algorithms-go/util"
 )
 
-// Solve Knapsack problem using iteration
+// Solve Knapsack problem using bottom-up iteration
 func main() {
     sack := knapsack.Load()
     n := sack.Size()
     W := sack.W()
     A := make([][]int, n + 1)
-    A[0] = make([]int, W + 1)
+    for i := 0; i <= n; i++ {
+        A[i] = make([]int, W + 1)
+    }
 
     for i := 1; i <= n; i++ {
-        A[i] = make([]int, W + 1)
-
         for x := 0; x <= W; x++ {
             var aix int
             w := sack.Weight(i)

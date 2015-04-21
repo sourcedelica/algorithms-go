@@ -31,7 +31,7 @@ func main() {
         os.Exit(1)
     }
     filename := os.Args[1]
-    ewGraph := graph.ReadEWGraph(filename)
+    ewGraph := graph.ReadEWUGraph(filename)
 
     mst := MST(ewGraph)
 

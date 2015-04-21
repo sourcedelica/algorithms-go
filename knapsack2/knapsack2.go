@@ -1,47 +1,17 @@
 package main
 
 import (
-    "github.com/sourcedelica/algorithms-go/knapsack"
     "fmt"
-    "github.com/sourcedelica/algorithms-go/util"
+    "github.com/sourcedelica/algorithms-go/knapsack"
 )
 
-// Solve Knapsack problem using recursion and memoization
+// Solve Knapsack problem using top-down recursion
 func main() {
     sack := knapsack.Load()
-    n := sack.Size()
-    W := sack.W()
-    memo := make(map[string]int)
 
-    optimalValue := find(n, W, &sack, memo)
+    result := sack.Find()
 
-    fmt.Printf("Value of sack: %d\n", optimalValue)
-}
-
-func find(i int, x int, sack *knapsack.Knapsack, memo map[string]int) int {
-    if i == 0 {
-        return 0
-    }
-
-    k := key(i, x)
-    if aix, ok := memo[k]; ok {
-        return aix
-    }
-
-    w := sack.Weight(i)
-    v := sack.Value(i)
-    var aix int
-
-    if w > x {
-        aix = find(i - 1, x, sack, memo)
-    } else {
-        aix = util.Max(find(i - 1, x, sack, memo), find(i - 1, x - w, sack, memo) + v)
-    }
-
-    memo[k] = aix
-    return aix
-}
-
-func key(i int, x int) string {
-    return fmt.Sprintf("%d,%d", i, x)
+    fmt.Printf("Items: %v\n", result.Items)
+    fmt.Printf("Weight: %d\n", result.Weight)
+    fmt.Printf("Value: %d\n", result.Value)
 }

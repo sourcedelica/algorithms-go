@@ -17,13 +17,23 @@ func (a *AdjacencyList) First() Node {
     return first
 }
 
-func (a *AdjacencyList) AddEdge(id1 int, id2 int, weight float64) {
-    v, ok := a.Nodes[id1]
+func (a *AdjacencyList) AddEdge(from int, to int, weight float64) {
+    node, ok := a.Nodes[from]
     if (!ok) {
-        v = Node{ Id: id1 }
+        node = Node{Id: from}
     }
-    v.Edges = append(v.Edges, Edge{ U: id1, V: id2, Weight: weight })
-    a.Nodes[id1] = v
+    node.Edges = append(node.Edges, Edge{U: from, V: to, Weight: weight})
+    a.Nodes[from] = node
+
+    node, ok = a.Nodes[to]
+    if (!ok) {
+        node = Node{Id: to}
+        a.Nodes[to] = node
+    }
+}
+
+func (a *AdjacencyList) Size() int {
+    return len(a.Nodes)
 }
 
 type Node struct {
@@ -37,6 +47,20 @@ type Edge struct {
     Weight float64
 }
 
+func (n Node) EdgeTo(i int) (*Edge, bool) {
+    for _, edge := range(n.Edges) {
+        if (edge.V == i) {
+            return &edge, true
+        }
+    }
+    return nil, false
+}
+
+func (n Node) HasEdge(i int) bool {
+    _, ok := n.EdgeTo(i)
+    return ok
+}
+
 func (e Edge) Other(id int) int {
     if id == e.U {
         return e.V
@@ -47,12 +71,30 @@ func (e Edge) Other(id int) int {
     }
 }
 
+func (e Edge) From() int {
+    return e.U
+}
+
+func (e Edge) To() int {
+    return e.V
+}
+
+// Read edge-weighted undirected graph
+func ReadEWUGraph(filename string) AdjacencyList {
+    return readEWGraph(filename, true)
+}
+
+// Read edge-weighted directed graph
+func ReadEWDGraph(filename string) AdjacencyList {
+    return readEWGraph(filename, false)
+}
+
 // Reads graphs in the format
 // #nodes #edges
 // node1 node2 weight
 // node1 node2 weight
 // ...
-func ReadEWGraph(filename string) AdjacencyList {
+func readEWGraph(filename string, undirected bool) AdjacencyList {
     f := util.OpenFile(filename)
    	defer f.Close()
    	scanner := bufio.NewScanner(bufio.NewReader(f))
@@ -66,12 +108,13 @@ func ReadEWGraph(filename string) AdjacencyList {
 
     for i := 0; i < numEdges; i++ {
         edgeParts := strings.Split(util.ReadLine(scanner), " ")
-        node1 := util.Atoi(edgeParts[0])
-        node2 := util.Atoi(edgeParts[1])
+        from := util.Atoi(edgeParts[0])
+        to := util.Atoi(edgeParts[1])
         weight := util.Atof(edgeParts[2])
-        ewGraph.AddEdge(node1, node2, weight)
-        ewGraph.AddEdge(node2, node1, weight)
+        ewGraph.AddEdge(from, to, weight)
+        if (undirected) {
+            ewGraph.AddEdge(to, from, weight)
+        }
     }
-
     return ewGraph
 }
