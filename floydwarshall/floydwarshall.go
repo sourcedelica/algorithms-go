@@ -54,7 +54,7 @@ func main() {
 func printShortestPath(sp *ShortestPaths) {
     min := math.Inf(1)
     var from, to int
-    for _, edge := range(sp.Paths) {
+    for _, edge := range sp.Paths {
         if edge.Weight < min {
             min = edge.Weight
             from = edge.From()
@@ -63,7 +63,7 @@ func printShortestPath(sp *ShortestPaths) {
     }
     fmt.Printf("Minimum path %d->%d, length=%f\n", from, to, min)
 
-    for _, i := range(sp.Path(from, to)) {
+    for _, i := range sp.Path(from, to) {
         fmt.Printf("%d", i)
         if i != to {
             fmt.Printf("->")
@@ -87,7 +87,7 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
         for j := 1; j <= n; j++ {
             dists[i][j] = math.Inf(1)
         }
-        for _, edge := range(ewdGraph.Nodes[i].Edges) {
+        for _, edge := range ewdGraph.Nodes[i].Edges {
             dists[i][edge.To()] = edge.Weight
             edges[i][edge.To()] = edge.To()
         }
@@ -99,7 +99,7 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
             for j := 1; j <= n; j++ {
                 left := dists[i][j]
                 right := dists[i][k] + dists[k][j]
-                if (left > right) {
+                if left > right {
                     dists[i][j] = right
                     edges[i][j] = edges[i][k]
                 }
