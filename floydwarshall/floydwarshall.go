@@ -8,9 +8,10 @@ import (
 )
 
 type ShortestPaths struct {
-    negativeCycle bool  // true if a negative cycle was detected
-    paths []graph.Edge  // Shortest s->t paths with their lengths
-    edges [][]int       // edges[s][t] contains the "from" vertex of the edge to t along the shortest s->t path
+    NegativeCycle bool  // true if a negative cycle was detected
+    Paths []graph.Edge  // Shortest s->t paths with their lengths
+    edges [][]int       // edges[s][t] contains the "from" vertex of the edge to t
+                        // along the shortest s->t path
 }
 
 // Reconstructs the from->to shortest path from the edges matrix
@@ -36,11 +37,12 @@ func main() {
         os.Exit(1)
     }
     filename := os.Args[1]
+    // Note - vertices must be numbered 1 or greater
     ewdGraph := graph.ReadEWDGraph(filename)
 
     sp := findShortestPaths(&ewdGraph)
 
-    if sp.negativeCycle {
+    if sp.NegativeCycle {
         fmt.Println("Negative cycle")
         os.Exit(1)
     }
@@ -52,7 +54,7 @@ func main() {
 func printShortestPath(sp *ShortestPaths) {
     min := math.Inf(1)
     var from, to int
-    for _, edge := range(sp.paths) {
+    for _, edge := range(sp.Paths) {
         if edge.Weight < min {
             min = edge.Weight
             from = edge.From()
@@ -85,15 +87,13 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
         for j := 1; j <= n; j++ {
             dists[i][j] = math.Inf(1)
         }
-    }
-
-    for i := 1; i <= n; i++ {
         for _, edge := range(ewdGraph.Nodes[i].Edges) {
             dists[i][edge.To()] = edge.Weight
             edges[i][edge.To()] = edge.To()
         }
     }
 
+    // Compute shortest paths using 1..k as intermediate vertices
     for k := 1; k <= n; k++ {
         for i := 1; i <= n; i++ {
             for j := 1; j <= n; j++ {
@@ -105,13 +105,14 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
                 }
             }
             if dists[i][i] < 0 {
-                return ShortestPaths{negativeCycle: true}
+                return ShortestPaths{NegativeCycle: true}
             }
         }
     }
 
     var paths []graph.Edge
 
+    // Collect the shortest i->j paths and their length
     for i := 1; i <= n; i++ {
         for j := 1; j <= n; j++ {
             if i != j && !math.IsInf(dists[i][j], 1) {
@@ -120,5 +121,5 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
         }
     }
 
-    return ShortestPaths{paths: paths, edges: edges}
+    return ShortestPaths{Paths: paths, edges: edges}
 }
