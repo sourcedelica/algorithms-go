@@ -64,3 +64,43 @@ func Min(a int, b int) int {
 		return b
 	}
 }
+
+type IntQueue []int
+
+func (q *IntQueue) Enqueue(i int) {
+	*q = append(*q, i)
+}
+
+func (q *IntQueue) Dequeue() (i int) {
+	i = (*q)[0]
+	*q = (*q)[1:]
+	return
+}
+
+func (q *IntQueue) Size() int {
+	return len(*q)
+}
+
+func (q *IntQueue) Empty() bool {
+	return q.Size() == 0
+}
+
+type IntStack []int
+
+func (s *IntStack) Push(i int) {
+	*s = append(*s, i)
+}
+
+func (s *IntStack) Pop() (i int) {
+	x := s.Size() - 1
+	i = (*s)[x]
+	*s = (*s)[:x]
+	return
+}
+func (s *IntStack) Size() int {
+	return len(*s)
+}
+
+func (s *IntStack) Empty() bool {
+	return s.Size() == 0
+}

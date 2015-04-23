@@ -11,6 +11,11 @@ type AdjacencyList struct {
     Nodes map[int]Node
 }
 
+func NewGraph(numNodes int) *AdjacencyList {
+    nodes := make(map[int]Node, 2 * numNodes)
+    return &AdjacencyList{ Nodes: nodes }
+}
+
 func (a *AdjacencyList) First() Node {
     var first Node
     for _, v := range a.Nodes { first = v; break }
@@ -80,12 +85,12 @@ func (e Edge) To() int {
 }
 
 // Read edge-weighted undirected graph
-func ReadEWUGraph(filename string) AdjacencyList {
+func ReadEWUGraph(filename string) *AdjacencyList {
     return readEWGraph(filename, true)
 }
 
 // Read edge-weighted directed graph
-func ReadEWDGraph(filename string) AdjacencyList {
+func ReadEWDGraph(filename string) *AdjacencyList {
     return readEWGraph(filename, false)
 }
 
@@ -94,7 +99,7 @@ func ReadEWDGraph(filename string) AdjacencyList {
 // node1 node2 weight
 // node1 node2 weight
 // ...
-func readEWGraph(filename string, undirected bool) AdjacencyList {
+func readEWGraph(filename string, undirected bool) *AdjacencyList {
     f := util.OpenFile(filename)
    	defer f.Close()
    	scanner := bufio.NewScanner(bufio.NewReader(f))
@@ -103,8 +108,7 @@ func readEWGraph(filename string, undirected bool) AdjacencyList {
     numNodes := util.Atoi(sizes[0])
     numEdges := util.Atoi(sizes[1])
 
-    nodes := make(map[int]Node, 2 * numNodes)
-    ewGraph := AdjacencyList{ Nodes: nodes }
+    ewGraph := NewGraph(numNodes)
 
     for i := 0; i < numEdges; i++ {
         edgeParts := strings.Split(util.ReadLine(scanner), " ")

@@ -14,23 +14,6 @@ type ShortestPaths struct {
                         // along the shortest s->t path
 }
 
-// Reconstructs the from->to shortest path from the edges matrix
-func (sp *ShortestPaths) Path(from int, to int) []int {
-    var path []int
-
-    if sp.edges[from][to] == 0 {
-        return nil
-    }
-
-    path = append(path, from)
-    for from != to {
-        from = sp.edges[from][to]
-        path = append(path, from)
-    }
-
-    return path
-}
-
 func main() {
     if len(os.Args) < 2 {
         fmt.Fprintf(os.Stderr, "Usage: %s filename\n", os.Args[0])
@@ -122,4 +105,21 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
     }
 
     return ShortestPaths{Paths: paths, edges: edges}
+}
+
+// Reconstructs the from->to shortest path from the edges matrix
+func (sp *ShortestPaths) Path(from int, to int) []int {
+	var path []int
+
+	if sp.edges[from][to] == 0 {
+		return nil
+	}
+
+	path = append(path, from)
+	for from != to {
+		from = sp.edges[from][to]
+		path = append(path, from)
+	}
+
+	return path
 }
