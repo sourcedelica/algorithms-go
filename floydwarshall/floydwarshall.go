@@ -4,6 +4,7 @@ import (
     "os"
     "fmt"
     "github.com/sourcedelica/algorithms-go/graph"
+    "math"
 )
 
 type FWShortestPaths struct {
@@ -29,5 +30,28 @@ func main() {
         os.Exit(1)
     }
 
-    sp.PrintShortestPath()
+    printShortestPath(&sp)
+}
+
+// Prints the shortest path found in the graph
+func printShortestPath(sp *graph.FWShortestPaths) {
+    min := math.Inf(1)
+    var from, to int
+
+    for _, edge := range sp.Paths {
+        if edge.Weight < min {
+            min = edge.Weight
+            from = edge.From()
+            to = edge.To()
+        }
+    }
+    fmt.Printf("Minimum path %d->%d, length=%f\n", from, to, min)
+
+    for _, i := range sp.Path(from, to) {
+        fmt.Printf("%d", i)
+        if i != to {
+            fmt.Printf("->")
+        }
+    }
+    fmt.Println()
 }

@@ -1,13 +1,12 @@
 package graph
 
 import (
-    "fmt"
     "math"
 )
 
 type FWShortestPaths struct {
     NegativeCycle bool  // true if a negative cycle was detected
-    Paths []Edge  // Shortest s->t paths with their lengths
+    Paths []Edge        // Shortest s->t paths with their lengths
     edges [][]int       // edges[s][t] contains the "from" vertex of the edge to t
                         // along the shortest s->t path
 }
@@ -62,28 +61,6 @@ func (graph *AdjacencyList) FloydWarshall() FWShortestPaths {
     }
 
     return FWShortestPaths{Paths: paths, edges: edges}
-}
-
-// Prints the shortest path found in the graph
-func (sp *FWShortestPaths) PrintShortestPath() {
-    min := math.Inf(1)
-    var from, to int
-    for _, edge := range sp.Paths {
-        if edge.Weight < min {
-            min = edge.Weight
-            from = edge.From()
-            to = edge.To()
-        }
-    }
-    fmt.Printf("Minimum path %d->%d, length=%f\n", from, to, min)
-
-    for _, i := range sp.Path(from, to) {
-        fmt.Printf("%d", i)
-        if i != to {
-            fmt.Printf("->")
-        }
-    }
-    fmt.Println()
 }
 
 // Reconstructs the from->to shortest path from the edges matrix
