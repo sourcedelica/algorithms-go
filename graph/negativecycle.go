@@ -7,7 +7,7 @@ type recdfs func(recdfs, int)
 // Returns nil if none were found
 func (graph *AdjacencyList) FindNegativeCycle() []Edge {
     var cycle []Edge
-    n := graph.Size() + 2
+    n := graph.V() + 2
     marked  := make([]bool, n)
     onStack := make([]bool, n)
     edges   := make([]Edge, n)

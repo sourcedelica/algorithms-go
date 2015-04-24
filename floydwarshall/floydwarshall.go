@@ -7,7 +7,7 @@ import (
     "math"
 )
 
-type ShortestPaths struct {
+type FWShortestPaths struct {
     NegativeCycle bool  // true if a negative cycle was detected
     Paths []graph.Edge  // Shortest s->t paths with their lengths
     edges [][]int       // edges[s][t] contains the "from" vertex of the edge to t
@@ -34,7 +34,7 @@ func main() {
 }
 
 // Prints the shortest path found in the graph
-func printShortestPath(sp *ShortestPaths) {
+func printShortestPath(sp *FWShortestPaths) {
     min := math.Inf(1)
     var from, to int
     for _, edge := range sp.Paths {
@@ -57,8 +57,8 @@ func printShortestPath(sp *ShortestPaths) {
 
 // All-pairs shortest paths using Floyd-Warshall algorithm
 // http://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
-func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
-    n := ewdGraph.Size()
+func findShortestPaths(ewdGraph *graph.AdjacencyList) FWShortestPaths {
+    n := ewdGraph.V()
 
     dists := make([][]float64, n + 1)
     edges := make([][]int, n + 1)
@@ -88,7 +88,7 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
                 }
             }
             if dists[i][i] < 0 {
-                return ShortestPaths{NegativeCycle: true}
+                return FWShortestPaths{NegativeCycle: true}
             }
         }
     }
@@ -104,11 +104,11 @@ func findShortestPaths(ewdGraph *graph.AdjacencyList) ShortestPaths {
         }
     }
 
-    return ShortestPaths{Paths: paths, edges: edges}
+    return FWShortestPaths{Paths: paths, edges: edges}
 }
 
 // Reconstructs the from->to shortest path from the edges matrix
-func (sp *ShortestPaths) Path(from int, to int) []int {
+func (sp *FWShortestPaths) Path(from int, to int) []int {
 	var path []int
 
 	if sp.edges[from][to] == 0 {

@@ -8,12 +8,14 @@ import (
 )
 
 type AdjacencyList struct {
+    numNodes int
+    numEdges int
     Nodes map[int]Node
 }
 
-func NewGraph(numNodes int) *AdjacencyList {
+func NewGraph(numNodes int, numEdges int) *AdjacencyList {
     nodes := make(map[int]Node, 2 * numNodes)
-    return &AdjacencyList{ Nodes: nodes }
+    return &AdjacencyList{numNodes: numNodes, numEdges: numEdges, Nodes: nodes}
 }
 
 func (a *AdjacencyList) First() Node {
@@ -37,8 +39,12 @@ func (a *AdjacencyList) AddEdge(from int, to int, weight float64) {
     }
 }
 
-func (a *AdjacencyList) Size() int {
-    return len(a.Nodes)
+func (a *AdjacencyList) V() int {
+    return a.numNodes
+}
+
+func (a *AdjacencyList) E() int {
+    return a.numEdges
 }
 
 type Node struct {
@@ -108,7 +114,7 @@ func readEWGraph(filename string, undirected bool) *AdjacencyList {
     numNodes := util.Atoi(sizes[0])
     numEdges := util.Atoi(sizes[1])
 
-    ewGraph := NewGraph(numNodes)
+    ewGraph := NewGraph(numNodes, numEdges)
 
     for i := 0; i < numEdges; i++ {
         edgeParts := strings.Split(util.ReadLine(scanner), " ")
