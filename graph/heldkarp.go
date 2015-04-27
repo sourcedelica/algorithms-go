@@ -43,6 +43,7 @@ func TSP(n int, dist [][]float64) EuclidTSP {
         cost[k][1] = dist[k][1]
         var set uint = (1 << (k - 1)) | 1
         cost[k][set] = dist[k][1]
+//fmt.Printf("cost[%d][%2d]=dist[%d][1]=%4.1f\n", k, set, k, dist[k][1])
     }
 
     var s uint
@@ -59,43 +60,37 @@ func TSP(n int, dist [][]float64) EuclidTSP {
                 var k uint
                 for k = 2; k <= uint(n); k++ {
                     var kmask uint = 1 << (k - 1)
-                    if set & kmask != 0 {
+
+                    if set & kmask == 0 {
+                        cks := math.Inf(1)
+//                        var notk uint = set & ^kmask
 //fmt.Printf("  k=%d kmask=%08b\n", k, kmask)
 
-                        // For each node m != k and m not in S
+                        // For each node m != k and m in S
                         var m uint
                         for m = 2; m <= uint(n); m++ {
                             var mmask uint = 1 << (m - 1)
-                            cks := math.Inf(1)
+                            if (set & mmask != 0) {
 //fmt.Printf("    m=%d mmask=%08b\n", m, mmask)
-
-                            if (m != k && set & mmask == 0) {
-
-                                var j uint
-                                for j = 2; j <= uint(n); j++ {
-                                    var jmask uint = 1 << (j - 1)
-                                    var noj uint = set & ^jmask
-                                    if set & jmask != 0 {
-//fmt.Printf("      j=%d jmask=%08b cost[%d][%2d]=%4.1f dist[%d][%2d]=%4.1f\n", j, jmask, j, noj, cost[j][noj], m, j, dist[m][j])
-                                        costNoj := cost[j][noj] + dist[m][j]
-                                        if (costNoj < cks) {
-                                            cks = costNoj
-                                        }
-                                    }
-
+//
+                                var notm uint = set & ^mmask
+//fmt.Printf("      cost[%d][%2d]=%4.1f dist[%d][%2d]=%4.1f\n", m, notm, cost[m][notm], k, m, dist[k][m])
+                                costNoj := cost[m][notm] + dist[k][m]
+                                if (costNoj < cks) {
+                                    cks = costNoj
                                 }
-//fmt.Printf("    cost[%d][%2d]=%4.1f\n", m, set, cks)
-                                cost[m][set] = cks
                             }
                         }
+                        cost[k][set] = cks
+//fmt.Printf("    cost[%d][%2d]=%4.1f\n", k, set, cks)
                     }
                 }
             }
         }
     }
-    var set uint = (1 << uint(n)) - 1
 
     // Cost := min k != 1 { cost(k, {1, 2, ..., n}) + dist[1][k] }
+    var set uint = (1 << uint(n)) - 1
     var min = math.Inf(1)
     for k = 2; k <= uint(n); k++ {
         var kmask uint = 1 << (k - 1)
