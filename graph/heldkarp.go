@@ -15,14 +15,14 @@ type EuclidTSPNodes struct {
     Nodes []EuclidTSPNode
 }
 
-type EuclidTSP struct {
+type MinimumTSP struct {
     Cost float64
     Tour []int    
 }
 
 // TSP using Held-Karp Algorithm
 // http://en.wikipedia.org/wiki/Held%E2%80%93Karp_algorithm
-func TSP(N int, dist [][]float64) EuclidTSP {
+func TSP(N int, dist [][]float64) MinimumTSP {
     n := uint(N)
     numSets := uint(1 << n)  // 2^n
     pred := make([][]uint, n + 1)
@@ -88,7 +88,7 @@ func TSP(N int, dist [][]float64) EuclidTSP {
     for k := uint(2); k <= n; k++ {
         kmask := bitAt(k)
         notk := set & ^kmask   // set - {k}
-        kcost := dist[1][k] + cost[notk][k]
+        kcost := cost[notk][k] + dist[1][k]
         if kcost < min {
             min = kcost
             mink = k
@@ -105,7 +105,7 @@ func TSP(N int, dist [][]float64) EuclidTSP {
     }
     tour = append(tour, 1)
 
-    return EuclidTSP{Cost: min, Tour: tour}
+    return MinimumTSP{Cost: min, Tour: tour}
 }
 
 // Set the bit at the ith position
