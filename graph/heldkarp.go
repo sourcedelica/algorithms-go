@@ -42,6 +42,7 @@ func TSP(n int, dist [][]float64) EuclidTSP {
     var s uint
     // Subproblem size
     for s = 2; s <= uint(n); s++ {
+        // Turn on all bits in set, ie, 0011 for s == 2
         var set uint = (1 << s) - 1
 
         // For all S subset of {1, 2, ..., n} of size s
@@ -51,18 +52,18 @@ func TSP(n int, dist [][]float64) EuclidTSP {
                 // For all k not in S
                 var k uint
                 for k = 2; k <= uint(n); k++ {
-                    var kmask uint = 1 << (k - 1)
+                    kmask := bitAt(k)
 
-                    if set & kmask == 0 {
+                    if set & kmask == 0 {   // k not in S
                         cks := math.Inf(1)
                         var minm uint
 
                         // For each m in S, compute minimum cost of path through m to k
                         var m uint
                         for m = 2; m <= uint(n); m++ {
-                            var mmask uint = 1 << (m - 1)
+                            mmask := bitAt(m)
 
-                            if set & mmask != 0 {
+                            if set & mmask != 0 {   // m in S
                                 var notm uint = set & ^mmask  // S - {m}
                                 costNoj := cost[notm][m] + dist[k][m]
                                 if (costNoj < cks) {
@@ -71,6 +72,7 @@ func TSP(n int, dist [][]float64) EuclidTSP {
                                 }
                             }
                         }
+                        // Record minimum and corresponding node
                         if len(cost[set]) == 0 {
                             cost[set] = make([]float64, n + 1)
                         }
@@ -85,13 +87,13 @@ func TSP(n int, dist [][]float64) EuclidTSP {
         }
     }
 
-    // Cost := min k != 1 { cost(k, {1, 2, ..., n}) + dist[1][k] }
+    // Cost := min k != 1 { cost(k, {1, 2, ..., n} - k) + dist[1][k] }
     var set uint = (1 << uint(n)) - 1
     min := math.Inf(1)
     var mink uint
     for k = 2; k <= uint(n); k++ {
-        var kmask uint = 1 << (k - 1)
-        var notk uint = set & ^kmask
+        kmask := bitAt(k)
+        var notk uint = set & ^kmask   // set - {k}
         kcost := dist[1][k] + cost[notk][k]
         if kcost < min {
             min = kcost
@@ -105,7 +107,7 @@ func TSP(n int, dist [][]float64) EuclidTSP {
     var p uint
     for p = mink; len(pred[p]) != 0; {
         tour = append(tour, int(p))
-        var pmask uint = 1 << (p - 1)
+        pmask := bitAt(p)
         set = set & ^pmask
         p = pred[p][set]
     }
@@ -114,7 +116,10 @@ func TSP(n int, dist [][]float64) EuclidTSP {
     return EuclidTSP{Cost: min, Tour: tour}
 }
 
-
+// Set the bit at the ith position
+func bitAt(i uint) uint {
+    return 1 << (i - 1)
+}
 
 // Create symmetric distance matrix based on Euclidean coordinates
 // Returns two-dimensional slice indexed 1..n (same as nodes)
