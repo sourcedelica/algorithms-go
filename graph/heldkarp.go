@@ -4,7 +4,6 @@ import (
     "github.com/sourcedelica/algorithms-go/util"
     "strings"
     "math"
-    "fmt"
 )
 
 type EuclidTSPNode struct {
@@ -24,13 +23,12 @@ type EuclidTSP struct {
 // TSP using Held-Karp Algorithm
 // http://en.wikipedia.org/wiki/Held%E2%80%93Karp_algorithm
 func TSP(n int, dist [][]float64) EuclidTSP {
-    printDistances(dist)
-
     numSets := (1 << uint(n))
+    var highBit uint = 1 << uint(n)
+    pred := make([][]uint, n + 1)
     cost := make([][]float64, numSets)
     cost[0] = make([]float64, n + 1)
     cost[1] = make([]float64, n + 1)
-    var highBit uint = 1 << uint(n)
 
     var k uint
     for k = 2; k <= uint(n); k++ {
@@ -57,16 +55,19 @@ func TSP(n int, dist [][]float64) EuclidTSP {
 
                     if set & kmask == 0 {
                         cks := math.Inf(1)
+                        var minm uint
 
                         // For each m in S, compute minimum cost of path through m to k
                         var m uint
                         for m = 2; m <= uint(n); m++ {
                             var mmask uint = 1 << (m - 1)
+
                             if set & mmask != 0 {
                                 var notm uint = set & ^mmask  // S - {m}
                                 costNoj := cost[notm][m] + dist[k][m]
                                 if (costNoj < cks) {
                                     cks = costNoj
+                                    minm = m
                                 }
                             }
                         }
@@ -74,6 +75,10 @@ func TSP(n int, dist [][]float64) EuclidTSP {
                             cost[set] = make([]float64, n + 1)
                         }
                         cost[set][k] = cks
+                        if len(pred[k]) == 0 {
+                            pred[k] = make([]uint, numSets)
+                        }
+                        pred[k][set] = minm
                     }
                 }
             }
@@ -82,18 +87,34 @@ func TSP(n int, dist [][]float64) EuclidTSP {
 
     // Cost := min k != 1 { cost(k, {1, 2, ..., n}) + dist[1][k] }
     var set uint = (1 << uint(n)) - 1
-    var min = math.Inf(1)
+    min := math.Inf(1)
+    var mink uint
     for k = 2; k <= uint(n); k++ {
         var kmask uint = 1 << (k - 1)
         var notk uint = set & ^kmask
         kcost := dist[1][k] + cost[notk][k]
         if kcost < min {
             min = kcost
+            mink = k
         }
     }
 
-    return EuclidTSP{Cost: min}  // TODO - Tour
+    // Compute tour by finding pred[p][subset] starting with the full set
+    // and removing one node at a time
+    tour := []int{1}
+    var p uint
+    for p = mink; len(pred[p]) != 0; {
+        tour = append(tour, int(p))
+        var pmask uint = 1 << (p - 1)
+        set = set & ^pmask
+        p = pred[p][set]
+    }
+    tour = append(tour, 1)
+
+    return EuclidTSP{Cost: min, Tour: tour}
 }
+
+
 
 // Create symmetric distance matrix based on Euclidean coordinates
 // Returns two-dimensional slice indexed 1..n (same as nodes)
@@ -168,17 +189,6 @@ func ReadTSPDistances(filename string) (int, [][]float64) {
         }
     }
     return n, dists
-}
-
-func printDistances(dist [][]float64) {
-    n := len(dist) - 1
-
-    for i := 1; i <= n; i++ {
-        for j := 1; j <= n; j++ {
-            fmt.Printf("%2.1f ", dist[i][j])
-        }
-        fmt.Println()
-    }
 }
 
 // Gosper's hack
