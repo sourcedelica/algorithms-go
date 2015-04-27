@@ -24,8 +24,7 @@ type EuclidTSP struct {
 // http://en.wikipedia.org/wiki/Held%E2%80%93Karp_algorithm
 func TSP(N int, dist [][]float64) EuclidTSP {
     n := uint(N)
-    numSets := (1 << n)
-    var highBit uint = 1 << n
+    numSets := uint(1 << n)  // 2^n
     pred := make([][]uint, n + 1)
     cost := make([][]float64, numSets)
     cost[1] = make([]float64, n + 1)
@@ -33,17 +32,17 @@ func TSP(N int, dist [][]float64) EuclidTSP {
     // Compute cost[{node}, 1] for each node
     for k := uint(2); k <= n; k++ {
         cost[1][k] = dist[k][1]
-        var set uint = (1 << (k - 1)) | 1
+        set := (1 << (k - 1)) | 1
         cost[set] = make([]float64, n + 1)
     }
 
     // Subproblem size goes from 2..n
     for s := uint(2); s <= n; s++ {
         // Turn on all bits in set, ie, 0011 for s == 2
-        var set uint = (1 << s) - 1
+        set := (1 << s) - uint(1)
 
         // For all S subset of {1, 2, ..., n} of size s
-        for ; (set & highBit) == 0; set = nextSubset(set) {
+        for ; (set & numSets) == 0; set = nextSubset(set) {
             if set & 1 != 0 {
 
                 // For all k not in S
@@ -59,7 +58,7 @@ func TSP(N int, dist [][]float64) EuclidTSP {
                             mmask := bitAt(m)
 
                             if set & mmask != 0 {   // m in S
-                                var notm uint = set & ^mmask  // S - {m}
+                                notm := set & ^mmask  // S - {m}
                                 costNoj := cost[notm][m] + dist[k][m]
                                 if (costNoj < cks) {
                                     cks = costNoj
@@ -83,12 +82,12 @@ func TSP(N int, dist [][]float64) EuclidTSP {
     }
 
     // Cost := min k != 1 { cost(k, {1, 2, ..., n} - k) + dist[1][k] }
-    var set uint = (1 << n) - 1
+    set := uint((1 << n) - 1)  // Set bit for each node in the set
     min := math.Inf(1)
     var mink uint
     for k := uint(2); k <= n; k++ {
         kmask := bitAt(k)
-        var notk uint = set & ^kmask   // set - {k}
+        notk := set & ^kmask   // set - {k}
         kcost := dist[1][k] + cost[notk][k]
         if kcost < min {
             min = kcost
