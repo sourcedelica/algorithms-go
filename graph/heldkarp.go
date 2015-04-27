@@ -22,16 +22,16 @@ type EuclidTSP struct {
 
 // TSP using Held-Karp Algorithm
 // http://en.wikipedia.org/wiki/Held%E2%80%93Karp_algorithm
-func TSP(n int, dist [][]float64) EuclidTSP {
-    numSets := (1 << uint(n))
-    var highBit uint = 1 << uint(n)
+func TSP(N int, dist [][]float64) EuclidTSP {
+    n := uint(N)
+    numSets := (1 << n)
+    var highBit uint = 1 << n
     pred := make([][]uint, n + 1)
     cost := make([][]float64, numSets)
     cost[0] = make([]float64, n + 1)
     cost[1] = make([]float64, n + 1)
 
-    var k uint
-    for k = 2; k <= uint(n); k++ {
+    for k := uint(2); k <= n; k++ {
         cost[0][k] = dist[k][1]
         cost[1][k] = dist[k][1]
         var set uint = (1 << (k - 1)) | 1
@@ -39,9 +39,8 @@ func TSP(n int, dist [][]float64) EuclidTSP {
         cost[set][k] = dist[k][1]
     }
 
-    var s uint
     // Subproblem size
-    for s = 2; s <= uint(n); s++ {
+    for s := uint(2); s <= n; s++ {
         // Turn on all bits in set, ie, 0011 for s == 2
         var set uint = (1 << s) - 1
 
@@ -50,8 +49,7 @@ func TSP(n int, dist [][]float64) EuclidTSP {
             if set & 1 != 0 {
 
                 // For all k not in S
-                var k uint
-                for k = 2; k <= uint(n); k++ {
+                for k := uint(2); k <= n; k++ {
                     kmask := bitAt(k)
 
                     if set & kmask == 0 {   // k not in S
@@ -59,8 +57,7 @@ func TSP(n int, dist [][]float64) EuclidTSP {
                         var minm uint
 
                         // For each m in S, compute minimum cost of path through m to k
-                        var m uint
-                        for m = 2; m <= uint(n); m++ {
+                        for m := uint(2); m <= n; m++ {
                             mmask := bitAt(m)
 
                             if set & mmask != 0 {   // m in S
@@ -88,10 +85,10 @@ func TSP(n int, dist [][]float64) EuclidTSP {
     }
 
     // Cost := min k != 1 { cost(k, {1, 2, ..., n} - k) + dist[1][k] }
-    var set uint = (1 << uint(n)) - 1
+    var set uint = (1 << n) - 1
     min := math.Inf(1)
     var mink uint
-    for k = 2; k <= uint(n); k++ {
+    for k := uint(2); k <= n; k++ {
         kmask := bitAt(k)
         var notk uint = set & ^kmask   // set - {k}
         kcost := dist[1][k] + cost[notk][k]
@@ -104,12 +101,10 @@ func TSP(n int, dist [][]float64) EuclidTSP {
     // Compute tour by finding pred[p][subset] starting with the full set
     // and removing one node at a time
     tour := []int{1}
-    var p uint
-    for p = mink; len(pred[p]) != 0; {
+    for p := uint(mink); len(pred[p]) != 0; p = pred[p][set] {
         tour = append(tour, int(p))
         pmask := bitAt(p)
         set = set & ^pmask
-        p = pred[p][set]
     }
     tour = append(tour, 1)
 
