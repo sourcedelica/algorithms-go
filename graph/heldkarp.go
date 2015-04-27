@@ -16,11 +16,6 @@ type EuclidTSPNodes struct {
     Nodes []EuclidTSPNode
 }
 
-//type euclidTSP struct {
-//    dist [][]float32
-//    path [][]float32
-//}
-
 type EuclidTSP struct {
     Cost float64
     Tour []int    
@@ -31,19 +26,19 @@ type EuclidTSP struct {
 func TSP(n int, dist [][]float64) EuclidTSP {
     printDistances(dist)
 
-    cost := make([][]float64, n + 1)
     numSets := (1 << uint(n))
-    cost[1] = make([]float64, numSets)
+    cost := make([][]float64, numSets)
+    cost[0] = make([]float64, n + 1)
+    cost[1] = make([]float64, n + 1)
     var highBit uint = 1 << uint(n)
 
     var k uint
     for k = 2; k <= uint(n); k++ {
-        cost[k] = make([]float64, numSets)
-        cost[k][0] = dist[k][1]
-        cost[k][1] = dist[k][1]
+        cost[0][k] = dist[k][1]
+        cost[1][k] = dist[k][1]
         var set uint = (1 << (k - 1)) | 1
-        cost[k][set] = dist[k][1]
-//fmt.Printf("cost[%d][%2d]=dist[%d][1]=%4.1f\n", k, set, k, dist[k][1])
+        cost[set] = make([]float64, n + 1)
+        cost[set][k] = dist[k][1]
     }
 
     var s uint
@@ -52,37 +47,33 @@ func TSP(n int, dist [][]float64) EuclidTSP {
         var set uint = (1 << s) - 1
 
         // For all S subset of {1, 2, ..., n} of size s
-        for ; (set & highBit) == 0; set = nextSubset(set, highBit) {
+        for ; (set & highBit) == 0; set = nextSubset(set) {
             if set & 1 != 0 {
-//fmt.Printf("s=%d set=%2d %08b\n", s, set, set)
 
-                // For all k in S
+                // For all k not in S
                 var k uint
                 for k = 2; k <= uint(n); k++ {
                     var kmask uint = 1 << (k - 1)
 
                     if set & kmask == 0 {
                         cks := math.Inf(1)
-//                        var notk uint = set & ^kmask
-//fmt.Printf("  k=%d kmask=%08b\n", k, kmask)
 
-                        // For each node m != k and m in S
+                        // For each m in S, compute minimum cost of path through m to k
                         var m uint
                         for m = 2; m <= uint(n); m++ {
                             var mmask uint = 1 << (m - 1)
-                            if (set & mmask != 0) {
-//fmt.Printf("    m=%d mmask=%08b\n", m, mmask)
-//
-                                var notm uint = set & ^mmask
-//fmt.Printf("      cost[%d][%2d]=%4.1f dist[%d][%2d]=%4.1f\n", m, notm, cost[m][notm], k, m, dist[k][m])
-                                costNoj := cost[m][notm] + dist[k][m]
+                            if set & mmask != 0 {
+                                var notm uint = set & ^mmask  // S - {m}
+                                costNoj := cost[notm][m] + dist[k][m]
                                 if (costNoj < cks) {
                                     cks = costNoj
                                 }
                             }
                         }
-                        cost[k][set] = cks
-//fmt.Printf("    cost[%d][%2d]=%4.1f\n", k, set, cks)
+                        if len(cost[set]) == 0 {
+                            cost[set] = make([]float64, n + 1)
+                        }
+                        cost[set][k] = cks
                     }
                 }
             }
@@ -95,7 +86,7 @@ func TSP(n int, dist [][]float64) EuclidTSP {
     for k = 2; k <= uint(n); k++ {
         var kmask uint = 1 << (k - 1)
         var notk uint = set & ^kmask
-        kcost := dist[1][k] + cost[k][notk]
+        kcost := dist[1][k] + cost[notk][k]
         if kcost < min {
             min = kcost
         }
@@ -190,12 +181,11 @@ func printDistances(dist [][]float64) {
     }
 }
 
-func nextSubset(x uint, highBit uint) uint {
+// Gosper's hack
+// http://read.seas.harvard.edu/cs207/2012/?p=64
+func nextSubset(x uint) uint {
     var y uint = x & -x
     var c uint = x + y
     x = (((x ^ c) >> 2) / y) | c
-//    if ((x & highBit) != 0) {
-//        x = ((x & (highBit - 1)) << 2) | 3
-//    }
     return x
 }
