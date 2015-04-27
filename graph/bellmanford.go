@@ -24,7 +24,7 @@ type BFShortestPaths struct {
 // Single-source shortest path using the Bellman-Ford algorithm
 // http://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
 func (ewdGraph *AdjacencyList) BellmanFord(start int) BFShortestPaths {
-    n := ewdGraph.V() + 1    // Allowing vertices to start from 1
+    n := ewdGraph.V() + 1       // Allow vertices to start from 1
     dists := make([]float64, n)
     edges := make([]Edge, n)
     onQueue := make([]bool, n)
