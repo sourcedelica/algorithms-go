@@ -28,18 +28,16 @@ func TSP(N int, dist [][]float64) EuclidTSP {
     var highBit uint = 1 << n
     pred := make([][]uint, n + 1)
     cost := make([][]float64, numSets)
-    cost[0] = make([]float64, n + 1)
     cost[1] = make([]float64, n + 1)
 
+    // Compute cost[{node}, 1] for each node
     for k := uint(2); k <= n; k++ {
-        cost[0][k] = dist[k][1]
         cost[1][k] = dist[k][1]
         var set uint = (1 << (k - 1)) | 1
         cost[set] = make([]float64, n + 1)
-        cost[set][k] = dist[k][1]
     }
 
-    // Subproblem size
+    // Subproblem size goes from 2..n
     for s := uint(2); s <= n; s++ {
         // Turn on all bits in set, ie, 0011 for s == 2
         var set uint = (1 << s) - 1
