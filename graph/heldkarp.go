@@ -24,20 +24,22 @@ type MinimumTSP struct {
 // http://en.wikipedia.org/wiki/Held%E2%80%93Karp_algorithm
 func TSP(N int, dist [][]float64) MinimumTSP {
     n := uint(N)
+    two := uint(2)
+    infinity := math.Inf(1)
     numSets := uint(1 << n)  // 2^n
     pred := make([][]uint, n + 1)
     cost := make([][]float64, numSets)
     cost[1] = make([]float64, n + 1)
 
     // Compute cost[{node}, 1] for each node
-    for k := uint(2); k <= n; k++ {
+    for k := two; k <= n; k++ {
         cost[1][k] = dist[k][1]
         set := (1 << (k - 1)) | 1
         cost[set] = make([]float64, n + 1)
     }
 
     // Subproblem size goes from 2..n
-    for s := uint(2); s <= n; s++ {
+    for s := two; s <= n; s++ {
         // Turn on all bits in set, ie, 0011 for s == 2
         set := (1 << s) - uint(1)
 
@@ -46,15 +48,15 @@ func TSP(N int, dist [][]float64) MinimumTSP {
             if set & 1 != 0 {
 
                 // For all k not in S
-                for k := uint(2); k <= n; k++ {
+                for k := two; k <= n; k++ {
                     kmask := bitAt(k)
 
                     if set & kmask == 0 {   // k not in S
-                        cks := math.Inf(1)
+                        cks := infinity
                         var minm uint
 
                         // For each m in S, compute minimum cost of path through m to k
-                        for m := uint(2); m <= n; m++ {
+                        for m := two; m <= n; m++ {
                             mmask := bitAt(m)
 
                             if set & mmask != 0 {   // m in S
@@ -85,7 +87,7 @@ func TSP(N int, dist [][]float64) MinimumTSP {
     set := uint((1 << n) - 1)  // Set bit for each node in the set
     min := math.Inf(1)
     var mink uint
-    for k := uint(2); k <= n; k++ {
+    for k := two; k <= n; k++ {
         kmask := bitAt(k)
         notk := set & ^kmask   // set - {k}
         kcost := cost[notk][k] + dist[1][k]
