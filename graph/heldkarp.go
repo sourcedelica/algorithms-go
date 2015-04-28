@@ -7,8 +7,8 @@ import (
 )
 
 type EuclidTSPNode struct {
-    x float64
-    y float64
+    x float32
+    y float32
 }
 
 type EuclidTSPNodes struct {
@@ -16,26 +16,26 @@ type EuclidTSPNodes struct {
 }
 
 type MinimumTSP struct {
-    Cost float64
+    Cost float32
     Tour []int    
 }
 
 // TSP using Held-Karp Algorithm
 // http://en.wikipedia.org/wiki/Held%E2%80%93Karp_algorithm
-func TSP(N int, dist [][]float64) MinimumTSP {
+func TSP(N int, dist [][]float32) MinimumTSP {
     n := uint(N)
     two := uint(2)
-    infinity := math.Inf(1)
+    infinity := float32(math.Inf(1))
     numSets := uint(1 << n)  // 2^n
     pred := make([][]uint, n + 1)
-    cost := make([][]float64, numSets)
-    cost[1] = make([]float64, n + 1)
+    cost := make([][]float32, numSets)
+    cost[1] = make([]float32, n + 1)
 
     // Compute cost[{node}, 1] for each node
     for k := two; k <= n; k++ {
         cost[1][k] = dist[k][1]
         set := (1 << (k - 1)) | 1
-        cost[set] = make([]float64, n + 1)
+        cost[set] = make([]float32, n + 1)
     }
 
     // Subproblem size goes from 2..n
@@ -70,7 +70,7 @@ func TSP(N int, dist [][]float64) MinimumTSP {
                         }
                         // Record minimum and corresponding node
                         if len(cost[set]) == 0 {
-                            cost[set] = make([]float64, n + 1)
+                            cost[set] = make([]float32, n + 1)
                         }
                         cost[set][k] = cks
                         if len(pred[k]) == 0 {
@@ -85,7 +85,7 @@ func TSP(N int, dist [][]float64) MinimumTSP {
 
     // Cost := min k != 1 { cost(k, {1, 2, ..., n} - k) + dist[1][k] }
     set := uint((1 << n) - 1)  // Set bit for each node in the set
-    min := math.Inf(1)
+    min := infinity
     var mink uint
     for k := two; k <= n; k++ {
         kmask := bitAt(k)
@@ -118,12 +118,12 @@ func bitAt(i uint) uint {
 // Create symmetric distance matrix based on Euclidean coordinates
 // Returns two-dimensional slice indexed 1..n (same as nodes)
 // Ignore the 0th row and column
-func CalcEuclidDistances(nodes EuclidTSPNodes) [][]float64 {
+func CalcEuclidDistances(nodes EuclidTSPNodes) [][]float32 {
     n := len(nodes.Nodes) - 1
-    dist := make([][]float64, n + 1)
+    dist := make([][]float32, n + 1)
 
     for i := 1; i <= n; i++ {
-        dist[i] = make([]float64, n + 1)
+        dist[i] = make([]float32, n + 1)
     }
 
     for i := 1; i <= n; i++ {
@@ -132,7 +132,7 @@ func CalcEuclidDistances(nodes EuclidTSPNodes) [][]float64 {
             xsq *= xsq
             ysq := nodes.Nodes[i].y - nodes.Nodes[j].y
             ysq *= ysq
-            sq := math.Sqrt(xsq + ysq)
+            sq := float32(math.Sqrt(float64(xsq + ysq)))
             dist[i][j] = sq
             dist[j][i] = sq
         }
@@ -157,8 +157,8 @@ func ReadTSPNodes(filename string) (int, EuclidTSPNodes) {
     
     for i := 1; i <= size; i++ {
         coord := strings.Split(util.ReadLine(scanner), " ")
-        x := util.Atof(coord[0])
-        y := util.Atof(coord[1])
+        x := float32(util.Atof(coord[0]))
+        y := float32(util.Atof(coord[1]))
         nodes[i] = EuclidTSPNode{x, y}
     }
     
@@ -173,18 +173,18 @@ func ReadTSPNodes(filename string) (int, EuclidTSPNodes) {
 // dn1 dn2 ... dnn
 // Returns the number of nodes and a 2-dimensional slice indexed 1 to n
 // The 0th row and column should be ignored
-func ReadTSPDistances(filename string) (int, [][]float64) {
+func ReadTSPDistances(filename string) (int, [][]float32) {
     f := util.OpenFile(filename)
    	defer f.Close()
    	scanner := bufio.NewScanner(bufio.NewReader(f))
 
     n := util.Atoi(util.ReadLine(scanner))
-    dists := make([][]float64, n + 1)
+    dists := make([][]float32, n + 1)
     for i := 1; i <= n; i++ {
-        dists[i] = make([]float64, n + 1)
+        dists[i] = make([]float32, n + 1)
         sdist := strings.Split(util.ReadLine(scanner), " ")
         for j := 0; j < n; j++ {
-            dists[i][j + 1] = util.Atof(sdist[j])
+            dists[i][j + 1] = float32(util.Atof(sdist[j]))
         }
     }
     return n, dists
