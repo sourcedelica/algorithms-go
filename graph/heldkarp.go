@@ -27,7 +27,7 @@ func TSP(N int, dist [][]float32) MinimumTSP {
     two := uint(2)
     infinity := float32(math.Inf(1))
     numSets := uint(1 << n)  // 2^n
-    pred := make([][]byte, n + 1)
+    pred := make([][]byte, numSets)
     cost := make([][]float32, numSets)
     cost[1] = make([]float32, n + 1)
 
@@ -36,6 +36,8 @@ func TSP(N int, dist [][]float32) MinimumTSP {
         cost[1][k] = dist[k][1]
         set := (1 << (k - 1)) | 1
         cost[set] = make([]float32, n + 1)
+        cost[set] = make([]float32, n + 1)
+        pred[set] = make([]byte, n + 1)
     }
 
     // Subproblem size goes from 2..n
@@ -71,12 +73,10 @@ func TSP(N int, dist [][]float32) MinimumTSP {
                         // Record minimum and corresponding node
                         if len(cost[set]) == 0 {
                             cost[set] = make([]float32, n + 1)
+                            pred[set] = make([]byte, n + 1)
                         }
                         cost[set][k] = cks
-                        if len(pred[k]) == 0 {
-                            pred[k] = make([]byte, numSets)
-                        }
-                        pred[k][set] = byte(minm)
+                        pred[set][k] = byte(minm)
                     }
                 }
             }
@@ -86,7 +86,7 @@ func TSP(N int, dist [][]float32) MinimumTSP {
     // Cost := min k != 1 { cost(k, {1, 2, ..., n} - k) + dist[1][k] }
     set := uint((1 << n) - 1)  // Set bit for each node in the set
     min := infinity
-    var mink uint
+    var mink, minSet uint
     for k := two; k <= n; k++ {
         kmask := bitAt(k)
         notk := set & ^kmask   // set - {k}
@@ -94,17 +94,22 @@ func TSP(N int, dist [][]float32) MinimumTSP {
         if kcost < min {
             min = kcost
             mink = k
+            minSet = notk
         }
     }
 
-    // Compute tour by finding pred[p][subset] starting with the full set
-    // and removing one node at a time
+    // Reconstruct tour by starting at pred[subset][k] using
+    // with the set and node found above and removing one node at a time
     tour := []int{1}
-    for p := uint(mink); len(pred[p]) != 0; p = uint(pred[p][set]) {
+    p := mink
+    var pmask uint
+    for set := minSet; len(pred[set]) != 0;  {
         tour = append(tour, int(p))
-        pmask := bitAt(p)
+        p = uint(pred[set][p])
+        pmask = bitAt(p)
         set = set & ^pmask
     }
+    tour = append(tour, int(p))
     tour = append(tour, 1)
 
     return MinimumTSP{Cost: min, Tour: tour}
