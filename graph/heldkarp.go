@@ -27,7 +27,7 @@ func TSP(N int, dist [][]float32) MinimumTSP {
     two := uint(2)
     infinity := float32(math.Inf(1))
     numSets := uint(1 << n)  // 2^n
-    pred := make([][]uint, n + 1)
+    pred := make([][]byte, n + 1)
     cost := make([][]float32, numSets)
     cost[1] = make([]float32, n + 1)
 
@@ -74,9 +74,9 @@ func TSP(N int, dist [][]float32) MinimumTSP {
                         }
                         cost[set][k] = cks
                         if len(pred[k]) == 0 {
-                            pred[k] = make([]uint, numSets)
+                            pred[k] = make([]byte, numSets)
                         }
-                        pred[k][set] = minm
+                        pred[k][set] = byte(minm)
                     }
                 }
             }
@@ -100,7 +100,7 @@ func TSP(N int, dist [][]float32) MinimumTSP {
     // Compute tour by finding pred[p][subset] starting with the full set
     // and removing one node at a time
     tour := []int{1}
-    for p := uint(mink); len(pred[p]) != 0; p = pred[p][set] {
+    for p := uint(mink); len(pred[p]) != 0; p = uint(pred[p][set]) {
         tour = append(tour, int(p))
         pmask := bitAt(p)
         set = set & ^pmask
