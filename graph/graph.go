@@ -13,9 +13,19 @@ type AdjacencyList struct {
     Nodes map[int]Node
 }
 
+type EdgeList struct {
+    numVertices int
+    numEdges int
+    Edges []Edge
+}
+
 func NewGraph(numNodes int, numEdges int) *AdjacencyList {
     nodes := make(map[int]Node, 2 * numNodes)
     return &AdjacencyList{numNodes: numNodes, numEdges: numEdges, Nodes: nodes}
+}
+
+func NewEdgeList(numVertices int, numEdges int) *EdgeList {
+    return &EdgeList{numVertices, numEdges, make([]Edge, numEdges)}
 }
 
 func (a *AdjacencyList) First() Node {
@@ -44,6 +54,14 @@ func (a *AdjacencyList) V() int {
 }
 
 func (a *AdjacencyList) E() int {
+    return a.numEdges
+}
+
+func (a *EdgeList) V() int {
+    return a.numVertices
+}
+
+func (a *EdgeList) E() int {
     return a.numEdges
 }
 
@@ -90,17 +108,17 @@ func (e Edge) To() int {
     return e.V
 }
 
-// Read edge-weighted undirected graph
+// Read edge-weighted undirected graph into an AdjacencyList
 func ReadEWUGraph(filename string) *AdjacencyList {
     return readEWGraph(filename, true)
 }
 
-// Read edge-weighted directed graph
+// Read edge-weighted directed graph into an AdjacencyList
 func ReadEWDGraph(filename string) *AdjacencyList {
     return readEWGraph(filename, false)
 }
 
-// Reads graphs in the format
+// Reads graphs in the format into an AdjacencyList
 // #nodes #edges
 // node1 node2 weight
 // node1 node2 weight
@@ -127,4 +145,30 @@ func readEWGraph(filename string, undirected bool) *AdjacencyList {
         }
     }
     return ewGraph
+}
+
+// Reads graphs in the format into an EdgeList
+// #nodes #edges
+// node1 node2 weight
+// node1 node2 weight
+// ...
+func ReadEdgeList(filename string) *EdgeList {
+    f := util.OpenFile(filename)
+    defer f.Close()
+    scanner := bufio.NewScanner(bufio.NewReader(f))
+
+    sizes := strings.Split(util.ReadLine(scanner), " ")
+    numNodes := util.Atoi(sizes[0])
+    numEdges := util.Atoi(sizes[1])
+
+    edgeList := NewEdgeList(numNodes, numEdges)
+
+    for i := 0; i < numEdges; i++ {
+        edgeParts := strings.Split(util.ReadLine(scanner), " ")
+        from := util.Atoi(edgeParts[0])
+        to := util.Atoi(edgeParts[1])
+        weight := util.Atof(edgeParts[2])
+        edgeList.Edges[i] = Edge{from, to, weight}
+    }
+    return edgeList
 }

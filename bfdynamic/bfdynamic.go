@@ -13,15 +13,16 @@ func main() {
         os.Exit(1)
     }
     filename := os.Args[1]
-    ewdGraph := graph.ReadEWDGraph(filename)
+    edgeList := graph.ReadEdgeList(filename)
     start := util.Atoi(os.Args[2])
 
-    bf := ewdGraph.BellmanFordDP(start)
+    bf := edgeList.BellmanFordDP(start)
 
     if bf.NegativeCycle != nil {
         fmt.Printf("Negative cycle: %v\n", bf.NegativeCycle)
         os.Exit(1)
     }
 
-    fmt.Printf("Result: %v\n", bf)
+    fmt.Printf("Distances: %v\n", bf.Dists)
+    fmt.Printf("Edges: %v\n", bf.Edges)
 }

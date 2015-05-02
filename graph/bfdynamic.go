@@ -3,50 +3,41 @@ import (
     "math"
 )
 
-func (graph *AdjacencyList) BellmanFordDP(start int) BFShortestPaths {
-    n := graph.V()
+func (graph *EdgeList) BellmanFordDP(start int) BFShortestPaths {
+    V := graph.V()
+    E := graph.E()
+    infinity := math.Inf(1)
+    dists := make([]float64, V + 1)
+    edges := make([]Edge, E + 1)
 
-    dists := make([][]float64, n + 1)
-    edges := make([]Edge, n + 1)
-
-    for i := 0; i < n; i++ {
-        dists[i] = make([]float64, n + 1)
-        if i == start {
-            dists[0][i] = 0
-        } else {
-            dists[0][i] = math.Inf(1)
+    for i := 0; i < V; i++ {
+        if i != start {
+            dists[i] = infinity
         }
     }
 
-    for i := 1; i < n; i++ {
+    for i := 1; i < V; i++ {
         same := true
-        for v := 0; v < n; v++ {   // TODO: add v <= n and check for v exists (for graphs starting at 1)
-            min := math.Inf(1)
-            for w := 0; w < n; w++ {   // TODO: more efficient way to check for (w, v) than this loop
-                if node, ok := graph.Nodes[w]; ok {
-                    for _, edge := range node.Edges {
-                        if edge.To() == v && v != start {
-                            dist := edge.Weight + dists[i - 1][w]
-                            if dist < min {
-                                min = dist
-                                edges[v] = edge
-                            }
-                        }
-                    }
+        for _, edge := range graph.Edges {
+            if edge.V != start {
+                dist := dists[edge.U] + edge.Weight
+                if dist < dists[edge.V] {
+                    dists[edge.V] = dist
+                    edges[edge.V] = edge
+                    same = false
                 }
             }
-            dists[i][v] = math.Min(dists[i - 1][v], min)
-            same = same && dists[i][v] == dists[i - 1][v]
         }
         if same { break }
     }
 
-    var d []float64 = []float64{0}
-    for v := 1; v <= n; v++ {
-        d = append(d, dists[n - 1][v])
+    var negCycle []Edge
+    for _, edge := range graph.Edges {
+        weight := edge.Weight
+        if dists[edge.U] != infinity && dists[edge.U] + weight < dists[edge.V] {
+            negCycle = append(negCycle, edge)
+        }
     }
 
-    // TODO: is there a way to check for negative cycle in the DP algo?
-
-    return BFShortestPaths{Dists: d, Edges: edges}
+    return BFShortestPaths{Dists: dists, Edges: edges, NegativeCycle: negCycle}
 }
