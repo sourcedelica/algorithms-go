@@ -1,6 +1,8 @@
 package graph
 import (
     "math"
+    "sort"
+    "fmt"
 )
 
 func (graph *EdgeList) BellmanFordDP(start int) BFShortestPaths {
@@ -9,6 +11,23 @@ func (graph *EdgeList) BellmanFordDP(start int) BFShortestPaths {
     infinity := math.Inf(1)
     dists := make([]float64, V + 1)
     edges := make([]Edge, E + 1)
+    vs := make(map[int][]Edge, E*2)
+    vertices := make(map[int]bool, V*2)
+    var vmax int
+
+    for _, edge := range graph.Edges {
+        var vEdges []Edge
+        if ve, ok := vs[edge.V]; ok {
+            vEdges = append(ve, edge)
+        } else {
+            vEdges = []Edge{edge}
+        }
+        vs[edge.V] = vEdges
+        vertices[edge.V] = true
+        vertices[edge.U] = true
+
+        if edge.V > vmax { vmax = edge.V }
+    }
 
     for i := 0; i < V; i++ {
         if i != start {
@@ -17,18 +36,25 @@ func (graph *EdgeList) BellmanFordDP(start int) BFShortestPaths {
     }
 
     for i := 1; i < V; i++ {
-        same := true
-        for _, edge := range graph.Edges {
-            if edge.V != start {
-                dist := dists[edge.U] + edge.Weight
-                if dist < dists[edge.V] {
-                    dists[edge.V] = dist
-                    edges[edge.V] = edge
-                    same = false
+//        same := true
+        even := i % 2 == 0
+        vlist := sortedKeys(vertices, even)
+        for _, v := range vlist {
+            vEdges := vs[v]
+            min := dists[v]
+            for _, edge := range vEdges {
+                if even && edge.U > edge.V && edge.V == v || !even && edge.U < edge.V && edge.V == v {
+                    dist := dists[edge.U] + edge.Weight
+                    if dist < min {
+                        min = dist
+                        edges[v] = edge
+//                        same = false
+                    }
                 }
             }
+            dists[v] = min
         }
-        if same { break }
+//        if same { break }
     }
 
     var negCycle []Edge
@@ -40,4 +66,23 @@ func (graph *EdgeList) BellmanFordDP(start int) BFShortestPaths {
     }
 
     return BFShortestPaths{Dists: dists, Edges: edges, NegativeCycle: negCycle}
+}
+
+// Go sucks so bad
+func sortedKeys(vmap map[int]bool, reverse bool) []int {
+    keys := make([]int, len(vmap))
+
+    i := 0
+    for k := range vmap {
+        keys[i] = k
+        i += 1
+    }
+
+    if reverse {
+        sort.Sort(sort.Reverse(sort.IntSlice(keys)))
+    } else {
+        sort.Ints(keys)
+    }
+fmt.Printf("%v\n", keys)
+    return keys
 }

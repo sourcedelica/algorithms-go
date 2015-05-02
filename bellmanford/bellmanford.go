@@ -23,5 +23,6 @@ func main() {
         os.Exit(1)
     }
 
-    fmt.Printf("Result: %v\n", bf)
+    fmt.Printf("Distances: %v\n", bf.Dists)
+    fmt.Printf("Edges: %v\n", bf.Edges)
 }
