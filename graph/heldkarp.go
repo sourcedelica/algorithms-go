@@ -103,11 +103,10 @@ func TSP(N int, dist [][]float32) MinimumTSP {
     tour := []int{1}
     p := mink
     var pmask uint
-    for set := minSet; len(pred[set]) != 0;  {
+    for set := minSet; len(pred[set]) != 0; set &= ^pmask {
         tour = append(tour, int(p))
         p = uint(pred[set][p])
         pmask = bitAt(p)
-        set = set & ^pmask
     }
     tour = append(tour, int(p))
     tour = append(tour, 1)

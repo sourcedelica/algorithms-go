@@ -16,7 +16,7 @@ func main() {
     ewdGraph := graph.ReadEWDGraph(filename)
     start := util.Atoi(os.Args[2])
 
-    bf := ewdGraph.BellmanFord(start)
+    bf := ewdGraph.BellmanFordDP(start)
 
     if bf.NegativeCycle != nil {
         fmt.Printf("Negative cycle: %v\n", bf.NegativeCycle)
