@@ -19,7 +19,7 @@ func main() {
     bf := edgeList.BellmanFordDP(start)
 
     if bf.NegativeCycle != nil {
-        fmt.Printf("Negative cycle: %v\n", bf.NegativeCycle)
+        fmt.Printf("Negative cycle includes: %v\n", bf.NegativeCycle)
         os.Exit(1)
     }
 
