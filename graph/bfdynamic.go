@@ -2,7 +2,6 @@ package graph
 import (
     "math"
     "sort"
-    "fmt"
 )
 
 func (graph *EdgeList) BellmanFordDP(start int) BFShortestPaths {
@@ -29,32 +28,29 @@ func (graph *EdgeList) BellmanFordDP(start int) BFShortestPaths {
         if edge.V > vmax { vmax = edge.V }
     }
 
-    for i := 0; i < V; i++ {
+    for i := 0; i <= V; i++ {
         if i != start {
             dists[i] = infinity
         }
     }
 
-    for i := 1; i < V; i++ {
-//        same := true
+    for i := 1; i <= V; i++ {
         even := i % 2 == 0
         vlist := sortedKeys(vertices, even)
         for _, v := range vlist {
             vEdges := vs[v]
             min := dists[v]
             for _, edge := range vEdges {
-                if even && edge.U > edge.V && edge.V == v || !even && edge.U < edge.V && edge.V == v {
+                if even && edge.U > edge.V || !even && edge.U < edge.V {
                     dist := dists[edge.U] + edge.Weight
                     if dist < min {
                         min = dist
                         edges[v] = edge
-//                        same = false
                     }
                 }
             }
             dists[v] = min
         }
-//        if same { break }
     }
 
     var negCycle []Edge
@@ -71,7 +67,6 @@ func (graph *EdgeList) BellmanFordDP(start int) BFShortestPaths {
 // Go sucks so bad
 func sortedKeys(vmap map[int]bool, reverse bool) []int {
     keys := make([]int, len(vmap))
-
     i := 0
     for k := range vmap {
         keys[i] = k
@@ -83,6 +78,5 @@ func sortedKeys(vmap map[int]bool, reverse bool) []int {
     } else {
         sort.Ints(keys)
     }
-fmt.Printf("%v\n", keys)
     return keys
 }
