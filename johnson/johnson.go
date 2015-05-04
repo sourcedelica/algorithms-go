@@ -31,7 +31,9 @@ func main() {
     for _, node := range ewdGraph.Nodes {
         for _, edge := range node.Edges {
             edge.Weight = edge.Weight + bf.Dists[edge.U] - bf.Dists[edge.V]
-fmt.Printf("edge: %v\n", edge)
         }
     }
+
+    // TODO - Run Dijkstra
+    // TODO - move code to graph package
 }

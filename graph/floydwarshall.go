@@ -2,7 +2,6 @@ package graph
 
 import (
     "math"
-    "fmt"
 )
 
 type FWShortestPaths struct {
@@ -26,7 +25,9 @@ func (graph *AdjacencyList) FloydWarshall() FWShortestPaths {
         edges[i] = make([]int, n + 1)
         for j := 1; j <= n; j++ {
             dists[i][j] = make([]float64, n+1)
-            dists[i][j][0] = math.Inf(1)
+            if i != j {
+                dists[i][j][0] = math.Inf(1)
+            }
         }
         for _, edge := range graph.Nodes[i].Edges {
             dists[i][edge.To()] = make([]float64, n+1)
@@ -44,11 +45,13 @@ func (graph *AdjacencyList) FloydWarshall() FWShortestPaths {
                 if left > right {
                     dists[i][j][k] = right
                     edges[i][j] = edges[i][k]
+                } else {
+                    dists[i][j][k] = left
                 }
             }
-//            if dists[i][i] < 0 {
-//                return FWShortestPaths{NegativeCycle: true}
-//            }
+            if dists[i][i][n] < 0 {
+                return FWShortestPaths{NegativeCycle: true}
+            }
         }
     }
 
@@ -57,7 +60,6 @@ func (graph *AdjacencyList) FloydWarshall() FWShortestPaths {
     // Collect the shortest i->j paths and their length
     for i := 1; i <= n; i++ {
         for j := 1; j <= n; j++ {
-fmt.Printf("dists[%d][%d]=%4.1f\n", i, j, dists[i][j][n])
             if i != j && !math.IsInf(dists[i][j][n], 1) {
                 paths = append(paths, Edge{i, j, dists[i][j][n]})
             }
