@@ -8,7 +8,7 @@ type FWShortestPaths struct {
     NegativeCycle bool  // true if a negative cycle was detected
     Paths []Edge        // Shortest s->t paths with their lengths
     edges [][]int       // edges[s][t] contains the "from" vertex of the edge to t
-                        // along the shortest s->t path
+    // along the shortest s->t path
 }
 
 // All-pairs shortest paths using Floyd-Warshall algorithm
@@ -16,22 +16,18 @@ type FWShortestPaths struct {
 func (graph *AdjacencyList) FloydWarshall() FWShortestPaths {
     n := graph.V()
 
-    dists := make([][][]float64, n + 1)
+    dists := make([][]float64, n + 1)
     edges := make([][]int, n + 1)
 
     // Initialization
     for i := 1; i <= n; i++ {
-        dists[i] = make([][]float64, n + 1)
+        dists[i] = make([]float64, n + 1)
         edges[i] = make([]int, n + 1)
         for j := 1; j <= n; j++ {
-            dists[i][j] = make([]float64, n+1)
-            if i != j {
-                dists[i][j][0] = math.Inf(1)
-            }
+            dists[i][j] = math.Inf(1)
         }
         for _, edge := range graph.Nodes[i].Edges {
-            dists[i][edge.To()] = make([]float64, n+1)
-            dists[i][edge.To()][0] = edge.Weight
+            dists[i][edge.To()] = edge.Weight
             edges[i][edge.To()] = edge.To()
         }
     }
@@ -40,16 +36,14 @@ func (graph *AdjacencyList) FloydWarshall() FWShortestPaths {
     for k := 1; k <= n; k++ {
         for i := 1; i <= n; i++ {
             for j := 1; j <= n; j++ {
-                left := dists[i][j][k-1]
-                right := dists[i][k][k-1] + dists[k][j][k-1]
+                left := dists[i][j]
+                right := dists[i][k] + dists[k][j]
                 if left > right {
-                    dists[i][j][k] = right
+                    dists[i][j] = right
                     edges[i][j] = edges[i][k]
-                } else {
-                    dists[i][j][k] = left
                 }
             }
-            if dists[i][i][n] < 0 {
+            if dists[i][i] < 0 {
                 return FWShortestPaths{NegativeCycle: true}
             }
         }
@@ -60,8 +54,8 @@ func (graph *AdjacencyList) FloydWarshall() FWShortestPaths {
     // Collect the shortest i->j paths and their length
     for i := 1; i <= n; i++ {
         for j := 1; j <= n; j++ {
-            if i != j && !math.IsInf(dists[i][j][n], 1) {
-                paths = append(paths, Edge{i, j, dists[i][j][n]})
+            if i != j && !math.IsInf(dists[i][j], 1) {
+                paths = append(paths, Edge{i, j, dists[i][j]})
             }
         }
     }
@@ -71,17 +65,17 @@ func (graph *AdjacencyList) FloydWarshall() FWShortestPaths {
 
 // Reconstructs the from->to shortest path from the edges matrix
 func (sp *FWShortestPaths) Path(from int, to int) []int {
-	var path []int
+    var path []int
 
-	if sp.edges[from][to] == 0 {
-		return nil
-	}
+    if sp.edges[from][to] == 0 {
+        return nil
+    }
 
-	path = append(path, from)
-	for from != to {
-		from = sp.edges[from][to]
-		path = append(path, from)
-	}
+    path = append(path, from)
+    for from != to {
+        from = sp.edges[from][to]
+        path = append(path, from)
+    }
 
-	return path
+    return path
 }
