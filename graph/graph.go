@@ -110,12 +110,17 @@ func (e Edge) To() int {
 
 // Read edge-weighted undirected graph into an AdjacencyList
 func ReadEWUGraph(filename string) *AdjacencyList {
-    return readEWGraph(filename, true)
+    return readGraph(filename, true, true)
 }
 
 // Read edge-weighted directed graph into an AdjacencyList
 func ReadEWDGraph(filename string) *AdjacencyList {
-    return readEWGraph(filename, false)
+    return readGraph(filename, false, true)
+}
+
+// Read undirected graph into an AdjacencyList
+func ReadUGraph(filename string) *AdjacencyList {
+    return readGraph(filename, true, false)
 }
 
 // Reads graphs in the format into an AdjacencyList
@@ -123,7 +128,7 @@ func ReadEWDGraph(filename string) *AdjacencyList {
 // node1 node2 weight
 // node1 node2 weight
 // ...
-func readEWGraph(filename string, undirected bool) *AdjacencyList {
+func readGraph(filename string, undirected bool, weighted bool) *AdjacencyList {
     f := util.OpenFile(filename)
    	defer f.Close()
    	scanner := bufio.NewScanner(bufio.NewReader(f))
@@ -138,7 +143,10 @@ func readEWGraph(filename string, undirected bool) *AdjacencyList {
         edgeParts := strings.Split(util.ReadLine(scanner), " ")
         from := util.Atoi(edgeParts[0])
         to := util.Atoi(edgeParts[1])
-        weight := util.Atof(edgeParts[2])
+        var weight float64
+        if (weighted) {
+            weight = util.Atof(edgeParts[2])
+        }
         ewGraph.AddEdge(from, to, weight)
         if (undirected) {
             ewGraph.AddEdge(to, from, weight)
