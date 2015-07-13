@@ -13,7 +13,13 @@ func main() {
     filename := os.Args[1]
     ugraph := graph.ReadUGraph(filename)
 
-    components := ugraph.CC()
+    compMap, count := ugraph.CC()
+
+    // Convert component map to slices
+    components := make([][]int, count)
+    for k, v := range compMap {
+        components[v] = append(components[v], k)
+    }
 
     fmt.Printf("%v\n", components)
 }

@@ -1,8 +1,10 @@
 package graph
 
 // Compute connected components of an undirected graph
-// Returns two-dimensional integer slice, indexed by component# first, then by members of that component
-func (graph *AdjacencyList) CC() [][]int {
+// Returns two-dimensional integer slice, indexed by component# first,
+// then by members of that component
+// TODO: adapt this for SCC (Kosaraju)
+func (graph *AdjacencyList) CC() (map[int]int, int) {
     n := graph.V() + 1
     count := 0
     marked  := make(map[int]bool, n)
@@ -29,10 +31,6 @@ func (graph *AdjacencyList) CC() [][]int {
         }
     }
 
-    // Convert component map to slices
-    components := make([][]int, count)
-    for k, v := range compMap {
-        components[v] = append(components[v], k)
-    }
-    return components
+
+    return compMap, count
 }
