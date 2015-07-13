@@ -46,9 +46,7 @@ func main() {
 // Form clusters of edges by closest distance
 // until number of clusters reaches k
 func formClusters(k int, edges []edge, uf *unionfind.UnionFind) {
-    numEdges := len(edges)
-    for i := 0; i < numEdges; i++ {
-        edge := edges[i]
+    for _, edge := range edges {
         uf.Union(edge.u, edge.v)
         if uf.Count == k {
             break
@@ -59,9 +57,7 @@ func formClusters(k int, edges []edge, uf *unionfind.UnionFind) {
 // Find edge with minimum distance where
 // points of edge are not in the same cluster
 func findMinDistance(edges []edge, uf unionfind.UnionFind) int {
-    numEdges := len(edges)
-    for i := 0; i < numEdges; i++ {
-        edge := edges[i]
+    for _, edge := range edges {
         if !uf.Connected(edge.u, edge.v) {
             return edge.distance
         }

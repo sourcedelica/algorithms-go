@@ -40,7 +40,8 @@ func main() {
 
 // Compute minimum spanning tree using Prim's algorithm
 // http://en.wikipedia.org/wiki/Prim%27s_algorithm
-func MST(ewGraph graph.AdjacencyList) []graph.Edge {
+// TODO: move to graph package
+func MST(ewGraph *graph.AdjacencyList) []graph.Edge {
     edgeHeap := &EdgeHeap{}
     visited := make(map[int]bool, 2 * len(ewGraph.Nodes))
     mst := make([]graph.Edge, 0)
@@ -63,7 +64,7 @@ func MST(ewGraph graph.AdjacencyList) []graph.Edge {
     return mst
 }
 
-func Visit(graph graph.AdjacencyList, h *EdgeHeap, visited map[int]bool, id int) {
+func Visit(graph *graph.AdjacencyList, h *EdgeHeap, visited map[int]bool, id int) {
     visited[id] = true
     for _, edge := range graph.Nodes[id].Edges {
         if !visited[edge.Other(id)] {
