@@ -70,18 +70,17 @@ func CutDP(prices []int) int {
 	pieces := make([]int, n + 1)
 
 	for i := 1; i <= n; i++ {
-		var maxValue, maxPiece int
+		maxValue := -1
 
-		for j := 0; j < i; j++ {
-			piece := i - j - 1
-			if (prices[j] + maxValues[piece] > maxValue) {
-				maxValue = prices[j] + maxValues[piece]
-				maxPiece = piece
+		for j := 1; j <= i; j++ {
+			piece := i - j
+			if (prices[j - 1] + maxValues[piece] > maxValue) {
+				maxValue = prices[j - 1] + maxValues[piece]
+				pieces[i] = j
 			}
 		}
 
 		maxValues[i] = maxValue
-		pieces[i] = maxPiece
 	}
 
 	/*lengths := */reconstruct(pieces, n)  // TODO - after recursive reconstruction return lengths to main
@@ -90,16 +89,11 @@ func CutDP(prices []int) int {
 
 func reconstruct(pieces []int, n int) []int {
 	var lengths []int
-	for i := n; i > 0; {
-		shorter := i - pieces[i]
-		if pieces[i] == 0 {
-			lengths = append(lengths, i)
-			break
-		} else {
-			lengths = append(lengths, shorter)
-			i = i - shorter
-		}
+
+	for ; n > 0; {
+		lengths = append(lengths, pieces[n])
+		n -= pieces[n]
 	}
-fmt.Printf("%v\n", lengths)
+fmt.Printf("%v\n", lengths)   // TODO - print price too
 	return lengths
 }
