@@ -9,7 +9,7 @@ func main() {
 	argc := len(os.Args)
 
 	if (argc < 2 || (os.Args[1] != "recursive" && os.Args[1] != "dp")) {
-		fmt.Printf("Usage: %s recursive|dp price...\n", os.Args[0])
+		fmt.Printf("Usage: %s recursive|dp string1 string2\n", os.Args[0])
 		os.Exit(1)
 	}
 
