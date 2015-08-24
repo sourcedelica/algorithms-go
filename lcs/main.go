@@ -16,11 +16,11 @@ func main() {
 	x := os.Args[2]
 	y := os.Args[3]
 
-	var longest int
+	var longest string
 	if os.Args[1] == "recursive" {
 		longest = sequence.LCSrecursive(x, y)
 	} else {
 		longest = sequence.LCSdp(x, y)
 	}
-	fmt.Printf("Longest common subsequence: %d\n", longest)
+	fmt.Printf("Longest common subsequence: %s\n", longest)
 }

@@ -13,6 +13,7 @@ func Create(n int) UnionFind {
     for i, _ := range id { id[i] = i }
     var size = make([] int, n)
     for i, _ := range size { size[i] = 1 }
+
     return UnionFind { id: id, size: size, Count: n }
 }
 
